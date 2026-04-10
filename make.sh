@@ -4,30 +4,25 @@ mkdir -p bin # create directory for executable
 rm -f bin/hw-smi # prevent execution of old version if compiling fails
 echo_and_execute() { echo "$@"; "$@"; }
 
-NVIDIA_LIB="/usr/lib/x86_64-linux-gnu/libnvidia-ml.so"
-AMD_LIB="/opt/rocm/lib/libamd_smi.so"
-INTEL_LIB="/usr/lib/x86_64-linux-gnu/libze_intel_gpu.so.1"
+NVIDIA_LIB_A="/usr/lib/libnvidia-ml.so"
+NVIDIA_LIB_B="/usr/lib/x86_64-linux-gnu/libnvidia-ml.so"
+NVIDIA_LIB_C="/usr/lib64/libnvidia-ml.so.1"
+NVIDIA_LIB_D="/usr/lib/wsl/lib/libnvidia-ml.so.1"
+AMD_LIB_A="/opt/rocm/lib/libamd_smi.so"
+INTEL_LIB_A="/usr/lib/libze_intel_gpu.so.1"
+INTEL_LIB_B="/usr/lib/x86_64-linux-gnu/libze_intel_gpu.so.1"
 
-if [[ -f $NVIDIA_LIB ]]; then
-	NVIDIA=1
-	echo -e "\033[92mInfo\033[0m: \033[32mNvidia\033[0m GPU driver found! --> \033[32m$NVIDIA_LIB\033[0m"
-else
-	echo -e "\033[33mWarning\033[0m: No \033[32mNvidia\033[0m GPU driver found! ??? \033[32m$NVIDIA_LIB\033[0m ???"
-fi
+if [[ -f $NVIDIA_LIB_A ]]; then NVIDIA=1; echo -e "\033[92mInfo\033[0m: \033[32mNvidia\033[0m GPU driver found! --> \033[32m$NVIDIA_LIB_A\033[0m"; fi
+if [[ -f $NVIDIA_LIB_B ]]; then NVIDIA=1; echo -e "\033[92mInfo\033[0m: \033[32mNvidia\033[0m GPU driver found! --> \033[32m$NVIDIA_LIB_B\033[0m"; fi
+if [[ -f $NVIDIA_LIB_C ]]; then NVIDIA=1; echo -e "\033[92mInfo\033[0m: \033[32mNvidia\033[0m GPU driver found! --> \033[32m$NVIDIA_LIB_C\033[0m"; fi
+if [[ -f $NVIDIA_LIB_D ]]; then NVIDIA=1; echo -e "\033[92mInfo\033[0m: \033[32mNvidia\033[0m GPU driver found! --> \033[32m$NVIDIA_LIB_D\033[0m"; fi
+if [[ -f $AMD_LIB_A    ]]; then AMD=1;    echo -e "\033[92mInfo\033[0m: \033[31mAMD\033[0m GPU driver found! --> \033[31m$AMD_LIB_A\033[0m"; fi
+if [[ -f $INTEL_LIB_A  ]]; then INTEL=1;  echo -e "\033[92mInfo\033[0m: \033[94mIntel\033[0m GPU driver found! --> \033[94m$INTEL_LIB_A\033[0m"; fi
+if [[ -f $INTEL_LIB_B  ]]; then INTEL=1;  echo -e "\033[92mInfo\033[0m: \033[94mIntel\033[0m GPU driver found! --> \033[94m$INTEL_LIB_B\033[0m"; fi
 
-if [[ -f $AMD_LIB ]]; then
-	AMD=1
-	echo -e "\033[92mInfo\033[0m: \033[31mAMD\033[0m GPU driver found! --> \033[31m$AMD_LIB\033[0m"
-else
-	echo -e "\033[33mWarning\033[0m: No \033[31mAMD\033[0m GPU driver found! ??? \033[31m$AMD_LIB\033[0m ???"
-fi
-
-if [[ -f $INTEL_LIB ]]; then
-	INTEL=1
-	echo -e "\033[92mInfo\033[0m: \033[94mIntel\033[0m GPU driver found! --> \033[94m$INTEL_LIB\033[0m"
-else
-	echo -e "\033[33mWarning\033[0m: No \033[94mIntel\033[0m GPU driver found! ??? \033[94m$INTEL_LIB\033[0m ???"
-fi
+if [[ !($NVIDIA) ]]; then echo -e "\033[33mWarning\033[0m: No \033[32mNvidia\033[0m GPU driver found!"; fi
+if [[ !($AMD   ) ]]; then echo -e "\033[33mWarning\033[0m: No \033[31mAMD\033[0m GPU driver found!"; fi
+if [[ !($INTEL ) ]]; then echo -e "\033[33mWarning\033[0m: No \033[94mIntel\033[0m GPU driver found!"; fi
 
 if [[ $NVIDIA && $AMD && $INTEL ]]; then # Nvidia+AMD+Intel GPUs
 	echo -e "\033[92mInfo\033[0m: Compiling for \033[32mNvidia\033[0m+\033[31mAMD\033[0m+\033[94mIntel\033[0m GPUs:"
