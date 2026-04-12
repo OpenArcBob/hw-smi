@@ -8,6 +8,10 @@
 #include <signal.h> // for detecting Ctrl+C
 #include "utilities.hpp"
 #define LINUX_CPU
+volatile bool running = true;
+void handler(int signo, siginfo_t* info, void* context) { // for detecting Ctrl+C
+	running = false;
+}
 #endif // Linux
 
 #define UPDATE_FREQUENCY 6u // update frequzency in Hz
@@ -677,8 +681,8 @@ vector<uint64_t> zes_last_pci_timestamp;
 string zes_get_device_name(const uint device_id) {
 	switch((int)device_id) { // https://github.com/intel/compute-runtime/blob/master/shared/source/dll/devices/devices_base.inl
 		case 0xB080: return "Intel Arc B390";
-		case 0xB081: return "Intel Arc B370";
 		case 0xB082: return "Intel Arc B390";
+		case 0xB081: return "Intel Arc B370";
 		case 0xB083: return "Intel Arc B370";
 		case 0xB08F: return "Intel Graphics";
 		case 0xB090: return "Intel Graphics";
@@ -691,7 +695,7 @@ string zes_get_device_name(const uint device_id) {
 		case 0xE211: return "Intel Arc Pro B60";
 		case 0xE212: return "Intel Arc Pro B50";
 		case 0x6420: return "Intel Graphics";
-		case 0x64A0: return "Intel Arc Graphics";
+		case 0x64A0: return "Intel Arc 130V/140V";
 		case 0x64B0: return "Intel Graphics";
 		case 0x0BD5: return "Intel Data Center GPU Max 1550";
 		case 0x0BD6: return "Intel Data Center GPU Max 1550";
@@ -734,7 +738,7 @@ string zes_get_device_name(const uint device_id) {
 		case 0x7DD5: return "Intel Graphics";
 		case 0x7D45: return "Intel Graphics";
 		case 0x7D67: return "Intel Graphics";
-		case 0x7D51: return "Intel Arc Graphics";
+		case 0x7D51: return "Intel Arc 130T/140T";
 		case 0x7DD1: return "Intel Graphics";
 		case 0x7D41: return "Intel Graphics";
 		case 0x9A49: return "Intel Iris Xe";
@@ -838,6 +842,61 @@ string zes_get_device_name(const uint device_id) {
 	}
 	return "Intel GPU ["+to_string_hex((ushort)device_id)+"]";
 }
+uint zes_get_memory_bandwidth_max(const uint device_id) {
+	switch((int)device_id) { // https://github.com/intel/compute-runtime/blob/master/shared/source/dll/devices/devices_base.inl
+		case 0xB080: return  153600u; // Intel Arc B390
+		case 0xB082: return  153600u; // Intel Arc B390
+		case 0xB081: return  136528u; // Intel Arc B370
+		case 0xB083: return  136528u; // Intel Arc B370
+		case 0xB090: return  119472u; // Intel Graphics
+		case 0xB0A0: return  136528u; // Intel Graphics
+		case 0xE209: return  456000u; // Intel Arc B580
+		case 0xE20B: return  456000u; // Intel Arc B580
+		case 0xE20C: return  380000u; // Intel Arc B570
+		case 0xE223: return  608000u; // Intel Arc Pro B70
+		case 0xE222: return  608000u; // Intel Arc Pro B65
+		case 0xE211: return  456000u; // Intel Arc Pro B60
+		case 0xE212: return  224000u; // Intel Arc Pro B50
+		case 0x64A0: return  136528u; // Intel Arc 130V/140V
+		case 0x0BD5: return 3276800u; // Intel Data Center GPU Max 1550
+		case 0x0BD6: return 3276800u; // Intel Data Center GPU Max 1550
+		case 0x0BD9: return 1228800u; // Intel Data Center GPU Max 1100
+		case 0x0BDA: return 1228800u; // Intel Data Center GPU Max 1100
+		case 0x0BDB: return 1228800u; // Intel Data Center GPU Max 1100
+		case 0x0B6E: return 1228800u; // Intel Data Center GPU Max 1100C
+		case 0x0BD4: return 3276800u; // Intel Data Center GPU Max 1550VG
+		case 0x5690: return  512000u; // Intel Arc A770M
+		case 0x5691: return  336000u; // Intel Arc A730M
+		case 0x5692: return  224000u; // Intel Arc A550M
+		case 0x5693: return  112000u; // Intel Arc A370M
+		case 0x5694: return  112000u; // Intel Arc A350M
+		case 0x5696: return  256000u; // Intel Arc A570M
+		case 0x5697: return  224000u; // Intel Arc A530M
+		case 0x56B0: return  112000u; // Intel Arc Pro A30M
+		case 0x56B1: return  192000u; // Intel Arc Pro A40/A50
+		case 0x56B2: return  256000u; // Intel Arc Pro A60M
+		case 0x56B3: return  384000u; // Intel Arc Pro A60
+		case 0x56BA: return  186000u; // Intel Arc A380E
+		case 0x56BB: return  124000u; // Intel Arc A310E
+		case 0x56BC: return  112000u; // Intel Arc A370E
+		case 0x56BD: return  112000u; // Intel Arc A350E
+		case 0x56BE: return  560000u; // Intel Arc A750E
+		case 0x56BF: return  560000u; // Intel Arc A580E
+		case 0x56A0: return  560000u; // Intel Arc A770
+		case 0x56A1: return  512000u; // Intel Arc A750
+		case 0x56A2: return  512000u; // Intel Arc A580
+		case 0x56A5: return  186000u; // Intel Arc A380
+		case 0x56A6: return  124000u; // Intel Arc A310 LP Graphics
+		case 0x56AF: return  512000u; // Intel Arc A760A
+		case 0x56C0: return  576000u; // Intel Data Center Flex 170
+		case 0x56C1: return  336000u; // Intel Data Center Flex 140
+		case 0x56C2: return  576000u; // Intel Data Center Flex 170V
+		case 0x7D51: return  134400u; // Intel Arc 130T/140T
+		case 0x4905: return   68000u; // Intel Iris Xe MAX
+		case 0x4909: return   34128u; // Intel Iris Xe MAX 100
+	}
+	return 0u;
+}
 bool zes_get_engine_usage(const uint g, const uint zes_engine_count, const zes_engine_handle_t* zes_engine_handles, const zes_engine_group_t& zes_engine_group) {
 	for(uint j=0u; j<zes_engine_count; j++) {
 		zes_engine_properties_t zes_engine_properties = {};
@@ -914,8 +973,8 @@ void gpu_initialize_intel() {
 			zesMemoryGetBandwidth(zes_mem_handles[j], &zes_mem_bandwidth);
 			zesMemoryGetProperties(zes_mem_handles[j], &zes_mem_properties);
 			zesMemoryGetState(zes_mem_handles[j], &zes_mem_state);
-			uint zes_memory_bandwidth_max = (uint)((zes_mem_bandwidth.maxBandwidth+500000ull)/1000000ull);
-			gpus[g].memory_bandwidth_max = zes_memory_bandwidth_max<3300000u ? zes_memory_bandwidth_max : zes_memory_bandwidth_max/8u; // zes_mem_bandwidth.maxBandwidth may wrongly report bandwidth in bits/s instead of Bytes/s, so divide by 8
+			uint zes_memory_bandwidth_max = (uint)((zes_mem_bandwidth.maxBandwidth+500000ull)/1000000ull); // zes_mem_bandwidth.maxBandwidth may wrongly report bandwidth in bits/s instead of Bytes/s, so divide by 8
+			gpus[g].memory_bandwidth_max = zes_memory_bandwidth_max>0u ? (zes_memory_bandwidth_max<3300000u ? zes_memory_bandwidth_max : zes_memory_bandwidth_max/8u) : zes_get_memory_bandwidth_max(zes_device_properties.core.deviceId); // harden against broken counters
 			gpus[g].memory_max = (uint)((max(zes_mem_properties.physicalSize, zes_mem_state.size)+524288ull)/1048576ull); // harden against broken counters
 			const uint memory_max_gb = (gpus[g].memory_max+500u)/1000u;
 			uint memory_bus_width_fallback = memory_max_gb*16u; // harden against broken counters
@@ -990,7 +1049,8 @@ void gpu_update_intel() {
 			zesMemoryGetProperties(zes_mem_handles[j], &zes_mem_properties);
 			zesMemoryGetState(zes_mem_handles[j], &zes_mem_state);
 			const ulong zes_memory_bandwidth_interval = zes_mem_bandwidth.timestamp-zes_last_readwrite_timestamp[i];
-			gpus[g].memory_bandwidth_current = zes_memory_bandwidth_interval>0ull ? (uint)((zes_mem_bandwidth.readCounter+zes_mem_bandwidth.writeCounter-zes_last_readwrite[i]+zes_memory_bandwidth_interval/2ull)/zes_memory_bandwidth_interval) : gpus[g].memory_bandwidth_current; // reuse last value if interval is 0
+			const uint gpu_memory_bandwidth_current = zes_memory_bandwidth_interval>0ull ? (uint)((zes_mem_bandwidth.readCounter+zes_mem_bandwidth.writeCounter-zes_last_readwrite[i]+zes_memory_bandwidth_interval/2ull)/zes_memory_bandwidth_interval) : gpus[g].memory_bandwidth_current; // reuse last value if interval is 0
+			gpus[g].memory_bandwidth_current = gpu_memory_bandwidth_current<2u*gpus[g].memory_bandwidth_max ? gpu_memory_bandwidth_current : 0u; // harden against spikes
 			uint zes_memory_bandwidth_max = (uint)((zes_mem_bandwidth.maxBandwidth+500000ull)/1000000ull); // harden against reading dropouts
 			gpus[g].memory_bandwidth_max = max(gpus[g].memory_bandwidth_max, zes_memory_bandwidth_max<3300000u ? zes_memory_bandwidth_max : zes_memory_bandwidth_max/8u); // zes_mem_bandwidth.maxBandwidth may wrongly report bandwidth in bits/s instead of Bytes/s, so divide by 8
 			zes_last_readwrite[i] = zes_mem_bandwidth.readCounter+zes_mem_bandwidth.writeCounter;
@@ -1027,11 +1087,22 @@ void gpu_update_intel() {
 		delete[] zes_temp_handles;
 		if(zes_temp_count==0u||gpus[g].temperature_current==0u) gpus[g].temperature_max = 0u; // no data available
 		zes_pwr_handle_t zes_pwr_handle = {};
-		if(zesDeviceGetCardPowerDomain(zes_device, &zes_pwr_handle)==ZE_RESULT_SUCCESS) {
+		bool zes_pwr_handle_found = true;
+		if(zesDeviceGetCardPowerDomain(zes_device, &zes_pwr_handle)!=ZE_RESULT_SUCCESS) { // harden against broken counters
+			uint zes_pwr_count = 0u;
+			zesDeviceEnumPowerDomains(zes_device, &zes_pwr_count, nullptr);
+			zes_pwr_handle_t* zes_pwr_handles = new zes_pwr_handle_t[zes_pwr_count];
+			zesDeviceEnumPowerDomains(zes_device, &zes_pwr_count, zes_pwr_handles);
+			if(zes_pwr_count>0u) zes_pwr_handle = zes_pwr_handles[0]; // https://oneapi-src.github.io/level-zero-spec/level-zero/latest/sysman/PROG.html#device-component-management
+			else zes_pwr_handle_found = false;
+			delete[] zes_pwr_handles;
+		}
+		if(zes_pwr_handle_found) {
 			zes_power_energy_counter_t zes_power_energy_counter = {};
 			zesPowerGetEnergyCounter(zes_pwr_handle, &zes_power_energy_counter);
 			const ulong zes_power_interval = zes_power_energy_counter.timestamp-zes_last_energy_timestamp[i];
-			gpus[g].power_current = zes_power_interval>0ull ? (uint)((zes_power_energy_counter.energy-zes_last_energy[i]+zes_power_interval/2ull)/zes_power_interval) : gpus[g].power_current; // reuse last value if interval is 0
+			const uint gpu_power_current = zes_power_interval>0ull ? (uint)((zes_power_energy_counter.energy-zes_last_energy[i]+zes_power_interval/2ull)/zes_power_interval) : gpus[g].power_current; // reuse last value if interval is 0
+			gpus[g].power_current = gpu_power_current<2u*gpus[g].power_max ? gpu_power_current : 0u; // harden against spikes
 			zes_last_energy[i] = zes_power_energy_counter.energy;
 			zes_last_energy_timestamp[i] = zes_power_energy_counter.timestamp;
 			zes_power_properties_t zes_power_properties = {};
@@ -1041,8 +1112,8 @@ void gpu_update_intel() {
 			zesPowerGetProperties(zes_pwr_handle, &zes_power_properties);
 			zesPowerGetLimits(zes_pwr_handle, &zes_power_sustained_limit, &zes_power_burst_limit, &zes_power_peak_limit); // returns ZE_RESULT_ERROR_UNSUPPORTED_FEATURE
 			const uint gpu_power_max = ((uint)max(zes_power_properties.defaultLimit, zes_power_sustained_limit.power)+500u)/1000u; // harden against broken counters
-			if(gpu_power_max>0u) {
-				gpus[g].power_max = gpu_power_max>0u ? gpu_power_max : gpus[g].power_max; // harden against reading dropouts
+			if(gpu_power_max>0u) { // harden against reading dropouts
+				gpus[g].power_max = gpu_power_max;
 			} else { // harden against broken counters
 				uint power_limit_ext_counter = 0u;
 				zesPowerGetLimitsExt(zes_pwr_handle, &power_limit_ext_counter, nullptr);
@@ -1453,13 +1524,6 @@ void print_data_graph(uint width, uint height) {
 
 
 #ifndef WINDOWS_GRAPHICS
-
-#ifdef __linux__
-volatile bool running = true;
-void handler(int signo, siginfo_t* info, void* context) {
-	running = false;
-}
-#endif // Linux
 
 int main(int argc, char* argv[]) {
 #if defined(_WIN32)
