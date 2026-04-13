@@ -78,12 +78,13 @@ vector<CircularBuffer<uchar, N>> graph_gpu_memory;
 
 string clean_device_name(string name) {
 	const auto gen = name.find("th Gen "); if(gen!=string::npos) name = name.substr(gen+7);
-	name = name.substr(0, name.find(" CPU @ "));
+	name = name.substr(0, name.find(" @ "));
 	name = name.substr(0, name.find(" GPU ("));
 	name = replace(name, " (R)", "");
 	name = replace(name, "(R)", "");
 	name = replace(name, " (TM)", "");
 	name = replace(name, "(TM)", "");
+	name = replace(name, " CPU", "");
 	name = replace(name, " GPU", "");
 	name = replace(name, "0 Graphics", "0");
 	name = replace(name, "M Graphics", "M");
