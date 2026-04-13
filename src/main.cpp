@@ -681,139 +681,123 @@ vector<uint64_t> zes_last_pci;
 vector<uint64_t> zes_last_pci_timestamp;
 string zes_get_device_name(const uint device_id) {
 	switch((int)device_id) { // https://github.com/intel/compute-runtime/blob/master/shared/source/dll/devices/devices_base.inl
-		case 0xB080: return "Intel Arc B390";
-		case 0xB082: return "Intel Arc B390";
-		case 0xB081: return "Intel Arc B370";
-		case 0xB083: return "Intel Arc B370";
-		case 0xB08F: return "Intel Graphics";
-		case 0xB090: return "Intel Graphics";
-		case 0xB0A0: return "Intel Graphics";
-		case 0xE209: return "Intel Arc B580";
-		case 0xE20B: return "Intel Arc B580";
-		case 0xE20C: return "Intel Arc B570";
-		case 0xE223: return "Intel Arc Pro B70";
-		case 0xE222: return "Intel Arc Pro B65";
-		case 0xE211: return "Intel Arc Pro B60";
-		case 0xE212: return "Intel Arc Pro B50";
-		case 0x6420: return "Intel Graphics";
-		case 0x64A0: return "Intel Arc 130V/140V";
-		case 0x64B0: return "Intel Graphics";
-		case 0x0BD5: return "Intel Data Center GPU Max 1550";
-		case 0x0BD6: return "Intel Data Center GPU Max 1550";
-		case 0x0BD7: return "Intel Data Center GPU Max 1350";
-		case 0x0BD8: return "Intel Data Center GPU Max 1350";
-		case 0x0BD9: return "Intel Data Center GPU Max 1100";
-		case 0x0BDA: return "Intel Data Center GPU Max 1100";
-		case 0x0BDB: return "Intel Data Center GPU Max 1100";
-		case 0x0B69: return "Intel Data Center GPU Max 1450";
-		case 0x0B6E: return "Intel Data Center GPU Max 1100C";
-		case 0x0BD4: return "Intel Data Center GPU Max 1550VG";
-		case 0x5690: return "Intel Arc A770M";
-		case 0x5691: return "Intel Arc A730M";
-		case 0x5692: return "Intel Arc A550M";
-		case 0x5693: return "Intel Arc A370M";
-		case 0x5694: return "Intel Arc A350M";
-		case 0x5696: return "Intel Arc A570M";
-		case 0x5697: return "Intel Arc A530M";
-		case 0x56B0: return "Intel Arc Pro A30M";
-		case 0x56B1: return "Intel Arc Pro A40/A50";
-		case 0x56B2: return "Intel Arc Pro A60M";
-		case 0x56B3: return "Intel Arc Pro A60";
-		case 0x56BA: return "Intel Arc A380E";
-		case 0x56BB: return "Intel Arc A310E";
-		case 0x56BC: return "Intel Arc A370E";
-		case 0x56BD: return "Intel Arc A350E";
-		case 0x56BE: return "Intel Arc A750E";
-		case 0x56BF: return "Intel Arc A580E";
-		case 0x56A0: return "Intel Arc A770";
-		case 0x56A1: return "Intel Arc A750";
-		case 0x56A2: return "Intel Arc A580";
-		case 0x56A5: return "Intel Arc A380";
-		case 0x56A6: return "Intel Arc A310 LP Graphics";
-		case 0x56AF: return "Intel Arc A760A";
-		case 0x56C0: return "Intel Data Center Flex 170";
-		case 0x56C1: return "Intel Data Center Flex 140";
-		case 0x56C2: return "Intel Data Center Flex 170V";
-		case 0x7D40: return "Intel Graphics";
-		case 0x7D55: return "Intel Arc Graphics";
-		case 0x7DD5: return "Intel Graphics";
-		case 0x7D45: return "Intel Graphics";
-		case 0x7D67: return "Intel Graphics";
-		case 0x7D51: return "Intel Arc 130T/140T";
-		case 0x7DD1: return "Intel Graphics";
-		case 0x7D41: return "Intel Graphics";
-		case 0x9A49: return "Intel Iris Xe";
-		case 0x9A40: return "Intel Iris Xe";
-		case 0x9A60: return "Intel UHD Graphics";
-		case 0x9A68: return "Intel UHD Graphics";
-		case 0x9A70: return "Intel UHD Graphics";
-		case 0x9A78: return "Intel UHD Graphics";
+		case 0x4909: return "Intel Iris Xe MAX 100";
 		case 0x4905: return "Intel Iris Xe MAX";
 		case 0x4907: return "Intel Server SG-18M";
-		case 0x4908: return "Intel Iris Xe";
-		case 0x4909: return "Intel Iris Xe MAX 100";
-		case 0x4C8A: return "Intel UHD 750";
-		case 0x4C8B: return "Intel UHD 730";
-		case 0x4C90: return "Intel UHD P750";
-		case 0x4680: return "Intel UHD 770";
-		case 0x4682: return "Intel UHD 730";
-		case 0x4688: return "Intel UHD Graphics";
-		case 0x468A: return "Intel UHD Graphics";
-		case 0x468B: return "Intel UHD Graphics";
-		case 0x4690: return "Intel UHD 770";
-		case 0x4692: return "Intel UHD 730";
-		case 0x4693: return "Intel UHD 710";
-		case 0xA780: return "Intel UHD 770";
-		case 0xA782: return "Intel UHD 730";
-		case 0xA788: return "Intel UHD Graphics";
-		case 0xA78A: return "Intel UHD Graphics";
-		case 0xA78B: return "Intel UHD Graphics";
-		case 0x46D0: return "Intel UHD Graphics";
-		case 0x46D1: return "Intel UHD Graphics";
-		case 0x46D2: return "Intel UHD Graphics";
+		case 0x0BD9: return "Intel Data Center GPU Max 1100"; // Ponte Vecchio
+		case 0x0BDA: return "Intel Data Center GPU Max 1100";
+		case 0x0BDB: return "Intel Data Center GPU Max 1100";
+		case 0x0B6E: return "Intel Data Center GPU Max 1100C";
+		case 0x0BD7: return "Intel Data Center GPU Max 1350";
+		case 0x0BD8: return "Intel Data Center GPU Max 1350";
+		case 0x0B69: return "Intel Data Center GPU Max 1450";
+		case 0x0BD5: return "Intel Data Center GPU Max 1550";
+		case 0x0BD6: return "Intel Data Center GPU Max 1550";
+		case 0x0BD4: return "Intel Data Center GPU Max 1550VG";
+		case 0x56A6: return "Intel Arc A310"; // Alchemist dGPUs
+		case 0x56A5: return "Intel Arc A380";
+		case 0x56A2: return "Intel Arc A580";
+		case 0x56A1: return "Intel Arc A750";
+		case 0x56A0: return "Intel Arc A770";
+		case 0x56B1: return "Intel Arc Pro A40/A50";
+		case 0x56B3: return "Intel Arc Pro A60";
+		case 0x56C1: return "Intel Data Center Flex 140";
+		case 0x56C2: return "Intel Data Center Flex 170V";
+		case 0x56C0: return "Intel Data Center Flex 170";
+		case 0x56BB: return "Intel Arc A310E";
+		case 0x56BC: return "Intel Arc A370E";
+		case 0x56BA: return "Intel Arc A380E";
+		case 0x56BD: return "Intel Arc A350E";
+		case 0x56BF: return "Intel Arc A580E";
+		case 0x56BE: return "Intel Arc A750E";
+		case 0x56AF: return "Intel Arc A760A";
+		case 0x5694: return "Intel Arc A350M"; // Alchemist Mobile dGPUs
+		case 0x5693: return "Intel Arc A370M";
+		case 0x5697: return "Intel Arc A530M";
+		case 0x5692: return "Intel Arc A550M";
+		case 0x5696: return "Intel Arc A570M";
+		case 0x5691: return "Intel Arc A730M";
+		case 0x5690: return "Intel Arc A770M";
+		case 0x56B0: return "Intel Arc Pro A30M";
+		case 0x56B2: return "Intel Arc Pro A60M";
+		case 0xE20C: return "Intel Arc B570"; // Battlemage dGPUs
+		case 0xE209: return "Intel Arc B580";
+		case 0xE20B: return "Intel Arc B580";
+		case 0xE212: return "Intel Arc Pro B50";
+		case 0xE211: return "Intel Arc Pro B60";
+		case 0xE222: return "Intel Arc Pro B65";
+		case 0xE223: return "Intel Arc Pro B70";
 		case 0x46D3: return "Intel Graphics";
 		case 0x46D4: return "Intel Graphics";
-		case 0x46A3: return "Intel UHD Graphics";
-		case 0x46A6: return "Intel Iris Xe";
-		case 0x46A8: return "Intel Iris Xe";
-		case 0x46AA: return "Intel Iris Xe";
+		case 0xA7AA: return "Intel Graphics"; // Core 7 250H
+		case 0xA7AB: return "Intel Graphics"; // Core 7 270H
+		case 0xA7AC: return "Intel Graphics"; // Core 7 250U
+		case 0xA7AD: return "Intel Graphics";
 		case 0x462A: return "Intel UHD Graphics";
 		case 0x4626: return "Intel UHD Graphics";
 		case 0x4628: return "Intel UHD Graphics";
+		case 0x4688: return "Intel UHD Graphics"; // Core i9-12950HX
+		case 0x468A: return "Intel UHD Graphics";
+		case 0x468B: return "Intel UHD Graphics";
+		case 0x46A3: return "Intel UHD Graphics";
 		case 0x46B3: return "Intel UHD Graphics";
 		case 0x46C3: return "Intel UHD Graphics";
-		case 0xA7A0: return "Intel Iris Xe";
+		case 0x46D0: return "Intel UHD Graphics"; // Core i3-N305
+		case 0x46D1: return "Intel UHD Graphics"; // N100
+		case 0x46D2: return "Intel UHD Graphics";
+		case 0x9A60: return "Intel UHD Graphics"; // Core i9-11980HK
+		case 0x9A68: return "Intel UHD Graphics";
+		case 0x9A70: return "Intel UHD Graphics";
+		case 0x9A78: return "Intel UHD Graphics";
+		case 0xA788: return "Intel UHD Graphics";
+		case 0xA78A: return "Intel UHD Graphics";
+		case 0xA78B: return "Intel UHD Graphics";
 		case 0xA720: return "Intel UHD Graphics";
-		case 0xA7A8: return "Intel UHD Graphics";
-		case 0xA7A1: return "Intel Iris Xe";
 		case 0xA721: return "Intel UHD Graphics";
+		case 0xA7A8: return "Intel UHD Graphics";
 		case 0xA7A9: return "Intel UHD Graphics";
-		case 0xA7AA: return "Intel Graphics";
-		case 0xA7AB: return "Intel Graphics";
-		case 0xA7AC: return "Intel Graphics";
-		case 0xA7AD: return "Intel Graphics";
-		case 0x674C: return "Intel Crescent Island";
-		case 0xB084: return "Intel Panther Lake";
-		case 0xB085: return "Intel Panther Lake";
-		case 0xB086: return "Intel Panther Lake";
-		case 0xB087: return "Intel Panther Lake";
-		case 0xB0B0: return "Intel Panther Lake";
-		case 0xFD80: return "Intel Panther Lake";
-		case 0xFD81: return "Intel Panther Lake";
-		case 0xD740: return "Intel Nova Lake S";
-		case 0xD741: return "Intel Nova Lake S";
-		case 0xD742: return "Intel Nova Lake S";
-		case 0xD743: return "Intel Nova Lake S";
-		case 0xD744: return "Intel Nova Lake S";
-		case 0xD745: return "Intel Nova Lake S";
-		case 0xE202: return "Intel Arc Battlemage";
-		case 0xE20D: return "Intel Arc Battlemage";
-		case 0xE210: return "Intel Arc Battlemage";
-		case 0xE215: return "Intel Arc Battlemage";
-		case 0xE216: return "Intel Arc Battlemage";
-		case 0xE220: return "Intel Arc Battlemage";
-		case 0xE221: return "Intel Arc Battlemage";
-		case 0x0BD0: return "Intel Ponte Vecchio";
+		case 0x4693: return "Intel UHD 710"; // Pentium Gold G7400
+		case 0x4682: return "Intel UHD 730"; // Core i5-13400
+		case 0x4692: return "Intel UHD 730"; // Core i5-12400T
+		case 0xA782: return "Intel UHD 730"; // Core i5-13400
+		case 0x4C8B: return "Intel UHD 730"; // Core i5-11400
+		case 0x4C8A: return "Intel UHD 750"; // Core i9-11900K
+		case 0x4C90: return "Intel UHD P750";
+		case 0x4C9A: return "Intel UHD P750"; // Xeon E-2388G
+		case 0x4680: return "Intel UHD 770"; // Core i9-12900KS
+		case 0x4690: return "Intel UHD 770";
+		case 0xA780: return "Intel UHD 770"; // Core i9-14900KS
+		case 0x46A6: return "Intel Iris Xe"; // Core i9-12900H
+		case 0x46A8: return "Intel Iris Xe"; // Core i7-1265U
+		case 0x46AA: return "Intel Iris Xe"; // Core i7-1260U
+		case 0x9A40: return "Intel Iris Xe"; // Core i7-1180G7
+		case 0x9A49: return "Intel Iris Xe"; // Core i7-1195G7
+		case 0xA7A0: return "Intel Iris Xe";
+		case 0xA7A1: return "Intel Iris Xe"; // Core i7-1365U
+		case 0x4908: return "Intel Iris Xe";
+		case 0x7D40: return "Intel Graphics";
+		case 0x7D41: return "Intel Graphics"; // Core Ultra 7 265U
+		case 0x7D45: return "Intel Graphics"; // Core Ultra 7 165UL
+		case 0x7D67: return "Intel Graphics"; // Core Ultra 9 285K
+		case 0x7DD1: return "Intel Graphics";
+		case 0x7DD5: return "Intel Graphics";
+		case 0x7D55: return "Intel Arc Graphics"; // Core Ultra 9 185H
+		case 0x7D51: return "Intel Arc 130T/140T"; // Core Ultra 9 285H
+		case 0x6420: return "Intel Graphics";
+		case 0x64B0: return "Intel Graphics";
+		case 0x64A0: return "Intel Arc 130V/140V"; // Core Ultra 9 288V
+		case 0xB08F: return "Intel Graphics";
+		case 0xB090: return "Intel Graphics"; // Core Ultra 7 365
+		case 0xB0A0: return "Intel Graphics"; // Core Ultra 9 386H
+		case 0xB081: return "Intel Arc B370"; // Core Ultra 5 338H
+		case 0xB083: return "Intel Arc B370"; // Core Ultra 5 338H
+		case 0xB085: return "Intel Arc B370"; // Core Ultra 5 338H
+		case 0xB087: return "Intel Arc B370"; // Core Ultra 5 338H
+		case 0xB080: return "Intel Arc B390"; // Core Ultra X9 388H
+		case 0xB082: return "Intel Arc B390"; // Core Ultra X9 388H
+		case 0xB084: return "Intel Arc B390"; // Core Ultra X9 388H
+		case 0xB086: return "Intel Arc B390"; // Core Ultra X9 388H
+		case 0x4906: return "Intel DG1"; // generic device names
 		case 0x4F80: return "Intel Arc Alchemist";
 		case 0x4F81: return "Intel Arc Alchemist";
 		case 0x4F82: return "Intel Arc Alchemist";
@@ -826,11 +810,18 @@ string zes_get_device_name(const uint device_id) {
 		case 0x5695: return "Intel Arc Alchemist";
 		case 0x56A3: return "Intel Arc Alchemist";
 		case 0x56A4: return "Intel Arc Alchemist";
+		case 0xE202: return "Intel Arc Battlemage";
+		case 0xE20D: return "Intel Arc Battlemage";
+		case 0xE210: return "Intel Arc Battlemage";
+		case 0xE215: return "Intel Arc Battlemage";
+		case 0xE216: return "Intel Arc Battlemage";
+		case 0xE220: return "Intel Arc Battlemage";
+		case 0xE221: return "Intel Arc Battlemage";
+		case 0x0BD0: return "Intel Ponte Vecchio";
+		case 0x674C: return "Intel Crescent Island";
 		case 0x9A59: return "Intel TgllpHw1x6x16";
-		case 0x4906: return "Intel DG1";
 		case 0x4C80: return "Intel Rocket Lake";
 		case 0x4C8C: return "Intel Rocket Lake";
-		case 0x4C9A: return "Intel Rocket Lake";
 		case 0xA781: return "Intel Alder Lake S";
 		case 0xA783: return "Intel Alder Lake S";
 		case 0xA789: return "Intel Alder Lake S";
@@ -840,61 +831,100 @@ string zes_get_device_name(const uint device_id) {
 		case 0x46B1: return "Intel Alder Lake P";
 		case 0x46C0: return "Intel Alder Lake P";
 		case 0x46C1: return "Intel Alder Lake P";
+		case 0xB0B0: return "Intel Panther Lake";
+		case 0xFD80: return "Intel Panther Lake";
+		case 0xFD81: return "Intel Panther Lake";
+		case 0xD740: return "Intel Nova Lake S";
+		case 0xD741: return "Intel Nova Lake S";
+		case 0xD742: return "Intel Nova Lake S";
+		case 0xD743: return "Intel Nova Lake S";
+		case 0xD744: return "Intel Nova Lake S";
+		case 0xD745: return "Intel Nova Lake S";
 	}
 	return "Intel GPU ["+to_string_hex((ushort)device_id)+"]";
 }
 uint zes_get_memory_bandwidth_max(const uint device_id) {
 	switch((int)device_id) { // https://github.com/intel/compute-runtime/blob/master/shared/source/dll/devices/devices_base.inl
-		case 0xB080: return  153600u; // Intel Arc B390
-		case 0xB082: return  153600u; // Intel Arc B390
-		case 0xB081: return  136528u; // Intel Arc B370
-		case 0xB083: return  136528u; // Intel Arc B370
-		case 0xB090: return  119472u; // Intel Graphics
-		case 0xB0A0: return  136528u; // Intel Graphics
-		case 0xE209: return  456000u; // Intel Arc B580
-		case 0xE20B: return  456000u; // Intel Arc B580
-		case 0xE20C: return  380000u; // Intel Arc B570
-		case 0xE223: return  608000u; // Intel Arc Pro B70
-		case 0xE222: return  608000u; // Intel Arc Pro B65
-		case 0xE211: return  456000u; // Intel Arc Pro B60
-		case 0xE212: return  224000u; // Intel Arc Pro B50
-		case 0x64A0: return  136528u; // Intel Arc 130V/140V
-		case 0x0BD5: return 3276800u; // Intel Data Center GPU Max 1550
-		case 0x0BD6: return 3276800u; // Intel Data Center GPU Max 1550
-		case 0x0BD9: return 1228800u; // Intel Data Center GPU Max 1100
+		case 0x4909: return   34128u; // Intel Iris Xe MAX 100
+		case 0x4905: return   68000u; // Intel Iris Xe MAX
+		case 0x0BD9: return 1228800u; // Intel Data Center GPU Max 1100 // Ponte Vecchio
 		case 0x0BDA: return 1228800u; // Intel Data Center GPU Max 1100
 		case 0x0BDB: return 1228800u; // Intel Data Center GPU Max 1100
 		case 0x0B6E: return 1228800u; // Intel Data Center GPU Max 1100C
+		case 0x0BD5: return 3276800u; // Intel Data Center GPU Max 1550
+		case 0x0BD6: return 3276800u; // Intel Data Center GPU Max 1550
 		case 0x0BD4: return 3276800u; // Intel Data Center GPU Max 1550VG
-		case 0x5690: return  512000u; // Intel Arc A770M
-		case 0x5691: return  336000u; // Intel Arc A730M
-		case 0x5692: return  224000u; // Intel Arc A550M
-		case 0x5693: return  112000u; // Intel Arc A370M
-		case 0x5694: return  112000u; // Intel Arc A350M
-		case 0x5696: return  256000u; // Intel Arc A570M
-		case 0x5697: return  224000u; // Intel Arc A530M
-		case 0x56B0: return  112000u; // Intel Arc Pro A30M
-		case 0x56B1: return  192000u; // Intel Arc Pro A40/A50
-		case 0x56B2: return  256000u; // Intel Arc Pro A60M
-		case 0x56B3: return  384000u; // Intel Arc Pro A60
-		case 0x56BA: return  186000u; // Intel Arc A380E
-		case 0x56BB: return  124000u; // Intel Arc A310E
-		case 0x56BC: return  112000u; // Intel Arc A370E
-		case 0x56BD: return  112000u; // Intel Arc A350E
-		case 0x56BE: return  560000u; // Intel Arc A750E
-		case 0x56BF: return  560000u; // Intel Arc A580E
-		case 0x56A0: return  560000u; // Intel Arc A770
-		case 0x56A1: return  512000u; // Intel Arc A750
-		case 0x56A2: return  512000u; // Intel Arc A580
+		case 0x56A6: return  124000u; // Intel Arc A310 // Alchemist dGPUs
 		case 0x56A5: return  186000u; // Intel Arc A380
-		case 0x56A6: return  124000u; // Intel Arc A310 LP Graphics
-		case 0x56AF: return  512000u; // Intel Arc A760A
-		case 0x56C0: return  576000u; // Intel Data Center Flex 170
+		case 0x56A2: return  512000u; // Intel Arc A580
+		case 0x56A1: return  512000u; // Intel Arc A750
+		case 0x56A0: return  560000u; // Intel Arc A770
+		case 0x56B1: return  192000u; // Intel Arc Pro A40/A50
+		case 0x56B3: return  384000u; // Intel Arc Pro A60
 		case 0x56C1: return  336000u; // Intel Data Center Flex 140
 		case 0x56C2: return  576000u; // Intel Data Center Flex 170V
-		case 0x7D51: return  134400u; // Intel Arc 130T/140T
-		case 0x4905: return   68000u; // Intel Iris Xe MAX
-		case 0x4909: return   34128u; // Intel Iris Xe MAX 100
+		case 0x56C0: return  576000u; // Intel Data Center Flex 170
+		case 0x56BB: return  124000u; // Intel Arc A310E
+		case 0x56BD: return  112000u; // Intel Arc A350E
+		case 0x56BC: return  112000u; // Intel Arc A370E
+		case 0x56BA: return  186000u; // Intel Arc A380E
+		case 0x56BF: return  560000u; // Intel Arc A580E
+		case 0x56BE: return  560000u; // Intel Arc A750E
+		case 0x56AF: return  512000u; // Intel Arc A760A
+		case 0x5694: return  112000u; // Intel Arc A350M // Alchemist Mobile dGPUs
+		case 0x5693: return  112000u; // Intel Arc A370M
+		case 0x5697: return  224000u; // Intel Arc A530M
+		case 0x5692: return  224000u; // Intel Arc A550M
+		case 0x5696: return  256000u; // Intel Arc A570M
+		case 0x5691: return  336000u; // Intel Arc A730M
+		case 0x5690: return  512000u; // Intel Arc A770M
+		case 0x56B0: return  112000u; // Intel Arc Pro A30M
+		case 0x56B2: return  256000u; // Intel Arc Pro A60M
+		case 0xE20C: return  380000u; // Intel Arc B570 // Battlemage dGPUs
+		case 0xE209: return  456000u; // Intel Arc B580
+		case 0xE20B: return  456000u; // Intel Arc B580
+		case 0xE212: return  224000u; // Intel Arc Pro B50
+		case 0xE211: return  456000u; // Intel Arc Pro B60
+		case 0xE222: return  608000u; // Intel Arc Pro B65
+		case 0xE223: return  608000u; // Intel Arc Pro B70
+		case 0xA7AA: return  102400u; // Intel Graphics // Core 7 250H
+		case 0xA7AB: return  102400u; // Intel Graphics // Core 7 270H
+		case 0xA7AC: return  102400u; // Intel Graphics // Core 7 250U
+		case 0x4688: return   76800u; // i9-12950HX
+		case 0x46D0: return   38400u; // Intel UHD Graphics // i3-N305
+		case 0x46D1: return   38400u; // Intel UHD Graphics // N100
+		case 0x9A60: return   51200u; // Intel UHD Graphics // i9-11980HK
+		case 0x4693: return   76800u; // Intel UHD 710 // Pentium Gold G7400
+		case 0x4682: return   76800u; // Intel UHD 730 // Core i5-13400
+		case 0x4692: return   76800u; // Intel UHD 730 // Core i5-12400T
+		case 0xA782: return   76800u; // Intel UHD 730 // Core i5-13400
+		case 0x4C8B: return   51200u; // Intel UHD 730 // Core i5-11400
+		case 0x4C8A: return   51200u; // Intel UHD 750 // Core i9-11900K
+		case 0x4C9A: return   51200u; // Intel UHD P750 // Xeon E-2388G
+		case 0x4680: return   76800u; // Intel UHD 770 // Core i9-12900KS
+		case 0xA780: return   89600u; // Intel UHD 770 // Core i9-14900KS
+		case 0x46A6: return   83200u; // Intel Iris Xe // Core i9-12900H
+		case 0x46A8: return   83200u; // Intel Iris Xe // Core i7-1265U
+		case 0x46AA: return   83200u; // Intel Iris Xe // Core i7-1260U
+		case 0x9A40: return   68272u; // Intel Iris Xe // Core i7-1180G7
+		case 0x9A49: return   68272u; // Intel Iris Xe // Core i7-1195G7
+		case 0xA7A1: return  102400u; // Intel Iris Xe // Core i7-1365U
+		case 0x7D41: return  134400u; // Intel Graphics // Core Ultra 7 265U
+		case 0x7D45: return   89600u; // Intel Graphics // Core Ultra 7 165UL
+		case 0x7D67: return  102400u; // Intel Graphics // Core Ultra 9 285K
+		case 0x7D55: return  119472u; // Intel Arc Graphics // Core Ultra 9 185H
+		case 0x7D51: return  134400u; // Intel Arc 130T/140T // Core Ultra 9 285H
+		case 0x64A0: return  136528u; // Intel Arc 130V/140V // Core Ultra 9 288V
+		case 0xB090: return  119472u; // Intel Graphics // Core Ultra 7 365
+		case 0xB0A0: return  136528u; // Intel Graphics // Core Ultra 9 386H
+		case 0xB081: return  136528u; // Intel Arc B370 // Intel Core Ultra 5 338H
+		case 0xB083: return  136528u; // Intel Arc B370 // Intel Core Ultra 5 338H
+		case 0xB085: return  136528u; // Intel Arc B370 // Intel Core Ultra 5 338H
+		case 0xB087: return  136528u; // Intel Arc B370 // Intel Core Ultra 5 338H
+		case 0xB080: return  153600u; // Intel Arc B390 // Intel Core Ultra X9 388H
+		case 0xB082: return  153600u; // Intel Arc B390 // Intel Core Ultra X9 388H
+		case 0xB084: return  153600u; // Intel Arc B390 // Intel Core Ultra X9 388H
+		case 0xB086: return  153600u; // Intel Arc B390 // Intel Core Ultra X9 388H
 	}
 	return 0u;
 }
