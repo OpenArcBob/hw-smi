@@ -990,7 +990,8 @@ void gpu_initialize_intel() {
 		const zes_device_handle_t& zes_device = zes_devices[i];
 		zes_device_properties_t zes_device_properties = {};
 		zesDeviceGetProperties(zes_device, &zes_device_properties);
-		gpus[g].name = !contains(zes_device_properties.core.name, "[0x") ? clean_device_name(string(zes_device_properties.core.name)) : zes_get_device_name(zes_device_properties.core.deviceId); // harden against broken counters
+		const string zes_gpu_name = trim(string(zes_device_properties.core.name));
+		gpus[g].name = length(zes_gpu_name)>0u&&!contains(zes_gpu_name, "[0x") ? clean_device_name(zes_gpu_name) : zes_get_device_name(zes_device_properties.core.deviceId); // harden against broken counters
 		gpus[g].vendor = 'I';
 		gpus[g].fan_max = 5000u; // no data available
 		uint zes_mem_count = 0u;
