@@ -1020,7 +1020,7 @@ void gpu_initialize_intel() {
 				case 24u: memory_bus_width_fallback = 192u; break; // Intel Arc Pro B60
 				case 32u: memory_bus_width_fallback = 256u; break; // Intel Arc Pro B65/B70
 			}
-			if(zes_device_properties.core.flags&ZE_DEVICE_PROPERTY_FLAG_INTEGRATED) memory_bus_width_fallback = 16u; // dual-channel memory for iGPUs
+			if(zes_device_properties.core.flags&ZE_DEVICE_PROPERTY_FLAG_INTEGRATED) memory_bus_width_fallback = 128u; // dual-channel (128-bit) memory for iGPUs
 			gpus[g].memory_bus_width = zes_mem_properties.busWidth>0 ? (uint)(zes_mem_properties.busWidth>256 ? zes_mem_properties.busWidth/2 : zes_mem_properties.busWidth) : memory_bus_width_fallback; // zes_mem_properties.busWidth may wrongly report 2x bus width
 		}
 		delete[] zes_mem_handles;
