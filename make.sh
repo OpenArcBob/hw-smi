@@ -82,9 +82,9 @@ fi
 
 if [[ $? == 0 ]]; then
 	if [[ $INTEL_LIB ]]; then # Intel SYSMAN API requires sudo permissions for some GPU counters
-		echo -e "\033[92mInfo\033[0m: Compiling was successful! Run hw-smi with:\nsudo bin/hw-smi\nsudo bin/hw-smi --graphs\nsudo bin/hw-smi --bars\nsudo bin/hw-smi --help"
+		echo -e "\033[92mInfo\033[0m: Compiling was successful! Run hw-smi with:\nsudo bin/hw-smi\nsudo bin/hw-smi --bars\nsudo bin/hw-smi --graphs\nsudo bin/hw-smi --help"
 	else
-		echo -e "\033[92mInfo\033[0m: Compiling was successful! Run hw-smi with:\nbin/hw-smi\nbin/hw-smi --graphs\nbin/hw-smi --bars\nbin/hw-smi --help"
+		echo -e "\033[92mInfo\033[0m: Compiling was successful! Run hw-smi with:\nbin/hw-smi\nbin/hw-smi --bars\nbin/hw-smi --graphs\nbin/hw-smi --help"
 	fi
 else
 	echo -e "\033[91mError\033[0m: Compiling failed."
