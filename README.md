@@ -54,8 +54,8 @@ A minimal, cross-compatible CPU/GPU telemetry monitor with accurate data directl
 - Alternatively, run from CMD:
   ```bash
   hw-smi.exe
-  hw-smi.exe --graphs
   hw-smi.exe --bars
+  hw-smi.exe --graphs
   hw-smi.exe --help
   ```
 - Note that it will also work without `administrator` permissions. However, some telemetry counters on Intel GPUs are not available without `administrator` permissions.
@@ -73,8 +73,8 @@ A minimal, cross-compatible CPU/GPU telemetry monitor with accurate data directl
 - Run:
   ```bash
   sudo bin/hw-smi
-  sudo bin/hw-smi --graphs
   sudo bin/hw-smi --bars
+  sudo bin/hw-smi --graphs
   sudo bin/hw-smi --help
   ```
 - Note that it will also work without `sudo`. However, some telemetry counters on Intel GPUs are not available without `sudo`.

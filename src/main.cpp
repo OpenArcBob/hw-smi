@@ -1611,7 +1611,7 @@ int main(int argc, char* argv[]) {
 		} else if(contains(main_arguments[0], "-b")) {
 			graphs = false;
 		} else {
-			print("hw-smi (c) Dr. Moritz Lehmann\nhttps://github.com/ProjectPhysX/hw-smi\n\nCommand-line options:\n -g / --graphs: visualize metrics as graphs (default)\n -b / --bars  : visualize metrics as bars\n -h / --help  : print this message\n\nPress Enter to continue.");
+			print("hw-smi (c) Dr. Moritz Lehmann\nhttps://github.com/ProjectPhysX/hw-smi\n\nCommand-line options:\n -b / --bars  : visualize metrics as bars (default)\n -g / --graphs: visualize metrics as graphs\n -h / --help  : print this message\n\nPress Enter to continue.");
 			wait();
 		}
 	}
