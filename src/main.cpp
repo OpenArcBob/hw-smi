@@ -51,7 +51,7 @@ struct GPU {
 	uint clock_core_current=0u, clock_core_max=0u, clock_memory_current=0u, clock_memory_max=0u; // in MHz
 	uint pcie_bandwidth_current=0u, pcie_bandwidth_max=0u; // bidirectional PCIe bandwidth in MB/s: 32GB/s (PCIe 3.0 x16), 64GB/s (PCIe 4.0 x16), 128GB/s (PCIe 5.0 x16)
 	uint memory_bus_width = 0u; // in bit
-	uint memory_transfers_per_clock = 8u; // depends on memory type: 2 ((LP)DDR1-5, GDDR1-4, HBM1-4), 4 (GDDR5), 8 (GDDR5X, GDDR6), 16 (GDDR6X, GDDR6W, GDDR7)
+	uint memory_transfers_per_clock = 0u; // depends on memory type: 2 ((LP)DDR1-5, GDDR1-4, HBM1-4), 4 (GDDR5), 8 (GDDR5X, GDDR6), 16 (GDDR6X, GDDR6W, GDDR7)
 	uint get_usage()            { return percentage(usage_current           , usage_max           ); } // in %
 	uint get_memory_bandwidth() { return percentage(memory_bandwidth_current, memory_bandwidth_max); } // in %
 	uint get_memory()           { return percentage(memory_current          , memory_max          ); } // in %
