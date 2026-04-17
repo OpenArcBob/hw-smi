@@ -51,6 +51,7 @@ struct GPU {
 	uint clock_core_current=0u, clock_core_max=0u, clock_memory_current=0u, clock_memory_max=0u; // in MHz
 	uint pcie_bandwidth_current=0u, pcie_bandwidth_max=0u; // bidirectional PCIe bandwidth in MB/s: 32GB/s (PCIe 3.0 x16), 64GB/s (PCIe 4.0 x16), 128GB/s (PCIe 5.0 x16)
 	uint memory_bus_width = 0u; // in bit
+	uint memory_transfers_per_clock = 8u; // depends on memory type: 2 ((LP)DDR1-5, GDDR1-4, HBM1-4), 4 (GDDR5), 8 (GDDR5X, GDDR6), 16 (GDDR6X, GDDR6W, GDDR7)
 	uint get_usage()            { return percentage(usage_current           , usage_max           ); } // in %
 	uint get_memory_bandwidth() { return percentage(memory_bandwidth_current, memory_bandwidth_max); } // in %
 	uint get_memory()           { return percentage(memory_current          , memory_max          ); } // in %
@@ -363,7 +364,7 @@ void cpu_finalize() {
 #endif // LINUX_CPU
 
 #ifdef NVIDIA_GPU
-// not available: fan_max
+// not available: fan_max, memory_transfers_per_clock
 // broken: power_current (pre-Pascal), fan_current (pre-Pascal)
 // unreliable/estimate: fan_current
 #include "NVML/include/nvml.h" // for getting GPU usage
@@ -385,15 +386,16 @@ void gpu_initialize_nvidia() {
 		const uint g = nvml_gpu_start+i;
 		const nvmlDevice_t& nvml_device = nvml_devices[i];
 		char char_gpu_name[96];
-		uint gpu_clock_memory_max_4x = 0u;
+		uint gpu_memory_transfers_max_half = 0u;
 		nvmlDeviceGetName(nvml_device, char_gpu_name, 96u);
 		nvmlDeviceGetMaxClockInfo(nvml_device, NVML_CLOCK_SM, &gpus[g].clock_core_max);
-		nvmlDeviceGetMaxClockInfo(nvml_device, NVML_CLOCK_MEM, &gpu_clock_memory_max_4x);
+		nvmlDeviceGetMaxClockInfo(nvml_device, NVML_CLOCK_MEM, &gpu_memory_transfers_max_half); // wrongly reports (MT/s / 2) instead of MHz
 		nvmlDeviceGetMemoryBusWidth(nvml_device, &gpus[g].memory_bus_width);
 		gpus[g].name = clean_device_name(string(char_gpu_name));
 		gpus[g].vendor = 'N'; // Nvidia
-		gpus[g].memory_bandwidth_max = gpus[g].memory_bus_width*gpu_clock_memory_max_4x/4u;
-		gpus[g].clock_memory_max = gpu_clock_memory_max_4x/4u;
+		gpus[g].memory_transfers_per_clock = 8u; // no data available
+		gpus[g].memory_bandwidth_max = (gpu_memory_transfers_max_half*2u)*gpus[g].memory_bus_width/8u;
+		gpus[g].clock_memory_max = (gpu_memory_transfers_max_half*2u)/gpus[g].memory_transfers_per_clock;
 		gpus[g].fan_max = 5000u;
 	}
 }
@@ -403,7 +405,7 @@ void gpu_update_nvidia() {
 		const nvmlDevice_t& nvml_device = nvml_devices[i];
 		nvmlUtilization_t nvml_utilization = {};
 		nvmlMemory_t nvml_memory = {};
-		uint gpu_temperature_current=0u, gpu_milliwatts_current=0u, gpu_milliwatts_total=0u, gpu_fan=0u, gpu_clock_memory_4x=0u, gpu_pcie_bandwidth_tx_kbps=0u, gpu_pcie_bandwidth_rx_kbps=0u, gpu_pcie_link_gen=0u, gpu_pcie_link_width=0u;
+		uint gpu_temperature_current=0u, gpu_milliwatts_current=0u, gpu_milliwatts_total=0u, gpu_fan=0u, gpu_memory_transfers_current_half=0u, gpu_pcie_bandwidth_tx_kbps=0u, gpu_pcie_bandwidth_rx_kbps=0u, gpu_pcie_link_gen=0u, gpu_pcie_link_width=0u;
 		nvmlDeviceGetUtilizationRates(nvml_device, &nvml_utilization);
 		nvmlDeviceGetMemoryInfo(nvml_device, &nvml_memory);
 		nvmlDeviceGetTemperature(nvml_device, NVML_TEMPERATURE_GPU, &gpu_temperature_current);
@@ -411,13 +413,13 @@ void gpu_update_nvidia() {
 		nvmlDeviceGetEnforcedPowerLimit(nvml_device, &gpu_milliwatts_total);
 		nvmlDeviceGetFanSpeed(nvml_device, &gpu_fan); // in %
 		nvmlDeviceGetClockInfo(nvml_device, NVML_CLOCK_SM, &gpus[g].clock_core_current);
-		nvmlDeviceGetClockInfo(nvml_device, NVML_CLOCK_MEM, &gpu_clock_memory_4x);
+		nvmlDeviceGetClockInfo(nvml_device, NVML_CLOCK_MEM, &gpu_memory_transfers_current_half); // wrongly reports (MT/s / 2) instead of MHz
 		nvmlDeviceGetPcieThroughput(nvml_device, NVML_PCIE_UTIL_TX_BYTES, &gpu_pcie_bandwidth_tx_kbps); // transmit
 		nvmlDeviceGetPcieThroughput(nvml_device, NVML_PCIE_UTIL_RX_BYTES, &gpu_pcie_bandwidth_rx_kbps); // receive
 		nvmlDeviceGetCurrPcieLinkGeneration(nvml_device, &gpu_pcie_link_gen);
 		nvmlDeviceGetCurrPcieLinkWidth(nvml_device, &gpu_pcie_link_width);
 		gpus[g].usage_current = (uint)nvml_utilization.gpu;
-		gpus[g].memory_bandwidth_current = ((gpus[g].memory_bus_width*gpu_clock_memory_4x/4u)*(uint)nvml_utilization.memory+50u)/100u; // +50u for correct rounding
+		gpus[g].memory_bandwidth_current = (((gpu_memory_transfers_current_half*2u)*gpus[g].memory_bus_width/8u)*(uint)nvml_utilization.memory+50u)/100u; // +50u for correct rounding
 		gpus[g].memory_current = (uint)((nvml_memory.used+524288ull)/1048576ull);
 		gpus[g].memory_max = max(gpus[g].memory_max, (uint)((nvml_memory.total+524288ull)/1048576ull)); // harden against reading dropouts
 		gpus[g].temperature_current = gpu_temperature_current>0u ? gpu_temperature_current : gpus[g].temperature_current; // harden against reading dropouts
@@ -425,7 +427,7 @@ void gpu_update_nvidia() {
 		gpus[g].power_current = (gpu_milliwatts_current+500u)/1000u;
 		gpus[g].power_max = gpu_milliwatts_total>0u ? (gpu_milliwatts_total+500u)/1000u : gpus[g].power_max; // harden against reading dropouts
 		gpus[g].fan_current = (gpus[g].fan_max*gpu_fan+50u)/100u; // +50u for correct rounding
-		gpus[g].clock_memory_current = gpu_clock_memory_4x/4u;
+		gpus[g].clock_memory_current = (gpu_memory_transfers_current_half*2u)/gpus[g].memory_transfers_per_clock;
 		const uint gpu_pcie_bandwidth_current = (gpu_pcie_bandwidth_tx_kbps+gpu_pcie_bandwidth_rx_kbps+512u)/1024u;
 		gpus[g].pcie_bandwidth_max = max(gpus[g].pcie_bandwidth_max, 246u*pow(2u, gpu_pcie_link_gen)*gpu_pcie_link_width); // harden against load-dependent reading
 		gpus[g].pcie_bandwidth_current = gpu_pcie_bandwidth_current<2u*gpus[g].pcie_bandwidth_max ? gpu_pcie_bandwidth_current : 0u; // harden against spikes
@@ -439,7 +441,7 @@ void gpu_finalize_nvidia() {
 
 #ifdef AMD_GPU
 #if defined(_WIN32)
-// not available: pcie_bandwidth_current, pcie_bandwidth_max
+// not available: pcie_bandwidth_current, pcie_bandwidth_max, memory_transfers_per_clock
 // broken: -
 // unreliable/estimate: memory_bandwidth_current, memory_bandwidth_max, memory_bus_width
 #include "ADLX/include/ADLXHelper.h" // https://github.com/GPUOpen-LibrariesAndSDKs/ADLX/blob/main/SDK/ADLXHelper/Windows/Cpp/ADLXHelper.h
@@ -519,12 +521,13 @@ void gpu_initialize_amd() {
 		gpus[g].name = clean_device_name(string(gpu_name));
 		gpus[g].vendor = 'A'; // AMD
 		gpus[g].memory_bandwidth_max = adlx_get_gpu_bandwidth_max(trim(string(device_id)), (((uint)gpu_memory_max+500u)/1000u), (uint)gpu_clock_memory_max); // harden against unavailable counter
-		gpus[g].memory_bus_width = (((uint)gpu_memory_max+500u)/1000u)*16u; // estimate
 		gpus[g].memory_max = (uint)gpu_memory_max;
 		gpus[g].power_max = (uint)gpu_power_max;
 		gpus[g].fan_max = gpu_fan_max>0 ? (uint)gpu_fan_max : 5000u;
+		gpus[g].memory_bus_width = (((uint)gpu_memory_max+500u)/1000u)*16u; // estimate
+		gpus[g].memory_transfers_per_clock = 8u; // no data available
 		gpus[g].clock_core_max = min((uint)gpu_clock_core_max, 3000u); // harden against broken counters
-		gpus[g].clock_memory_max = min((uint)gpu_clock_memory_max, gpus[g].memory_bandwidth_max/gpus[g].memory_bus_width); // harden against broken counters
+		gpus[g].clock_memory_max = min((uint)gpu_clock_memory_max, gpus[g].memory_bus_width>0u ? gpus[g].memory_bandwidth_max*8u/(gpus[g].memory_transfers_per_clock*gpus[g].memory_bus_width) : 0u); // harden against broken counters
 		gpus[g].pcie_bandwidth_max = 0u; // no data available
 	}
 }
@@ -578,7 +581,9 @@ void gpu_initialize_amd() {
 		vector<amdsmi_processor_handle> amdsmi_devices_to_add(amdsmi_device_count);
 		amdsmi_get_processor_handles(amdsmi_socket, &amdsmi_device_count, &amdsmi_devices_to_add[0]);
 		for(const amdsmi_processor_handle& amdsmi_device_to_add : amdsmi_devices_to_add) {
-			amdsmi_devices.push_back(amdsmi_device_to_add);
+			processor_type_t amdsmi_processor_type = {};
+			amdsmi_get_processor_type(amdsmi_device_to_add, &amdsmi_processor_type);
+			if(amdsmi_processor_type==AMDSMI_PROCESSOR_TYPE_AMD_GPU) amdsmi_devices.push_back(amdsmi_device_to_add);
 		}
 	}
 	amdsmi_gpu_start = gpu_number;
@@ -588,9 +593,6 @@ void gpu_initialize_amd() {
 	for(uint i=0u; i<(uint)amdsmi_devices.size(); i++) {
 		const uint g = amdsmi_gpu_start+i;
 		const amdsmi_processor_handle& amdsmi_device = amdsmi_devices[i];
-		processor_type_t amdsmi_processor_type;
-		amdsmi_get_processor_type(amdsmi_device, &amdsmi_processor_type);
-		if(amdsmi_processor_type!=AMDSMI_PROCESSOR_TYPE_AMD_GPU) continue;
 		amdsmi_asic_info_t amdsmi_asic_info = {};
 		amdsmi_vram_info_t amdsmi_vram_info = {};
 		amdsmi_frequencies_t amdsmi_frequencies_core = {};
@@ -606,18 +608,36 @@ void gpu_initialize_amd() {
 		gpus[g].clock_memory_max = 0u;
 		for(uint f=0u; f<amdsmi_frequencies_core.num_supported; f++) gpus[g].clock_core_max = max(gpus[g].clock_core_max, (uint)((amdsmi_frequencies_core.frequency[f]+500000ull)/1000000ull));
 		for(uint f=0u; f<amdsmi_frequencies_memory.num_supported; f++) gpus[g].clock_memory_max = max(gpus[g].clock_memory_max, 2u*(uint)((amdsmi_frequencies_memory.frequency[f]+500000ull)/1000000ull));
-		gpus[g].memory_bandwidth_max = amdsmi_vram_info.vram_bit_width*gpus[g].clock_memory_max; // amdsmi_vram_info.vram_max_bandwidth is broken
-		gpus[g].pcie_bandwidth_max = 0u; // no data available
 		gpus[g].memory_bus_width = amdsmi_vram_info.vram_bit_width;
+		switch(amdsmi_vram_info.vram_type) { // memory type: 2 ((LP)DDR1-5, GDDR1-4, HBM1-4), 4 (GDDR5), 8 (GDDR5X, GDDR6), 16 (GDDR6X, GDDR6W, GDDR7)
+			case AMDSMI_VRAM_TYPE_HBM   : gpus[g].memory_transfers_per_clock =  2u; break;
+			case AMDSMI_VRAM_TYPE_HBM2  : gpus[g].memory_transfers_per_clock =  2u; break;
+			case AMDSMI_VRAM_TYPE_HBM2E : gpus[g].memory_transfers_per_clock =  2u; break;
+			case AMDSMI_VRAM_TYPE_HBM3  : gpus[g].memory_transfers_per_clock =  2u; break;
+			case AMDSMI_VRAM_TYPE_HBM3E : gpus[g].memory_transfers_per_clock =  2u; break;
+			case AMDSMI_VRAM_TYPE_DDR2  : gpus[g].memory_transfers_per_clock =  2u; break;
+			case AMDSMI_VRAM_TYPE_DDR3  : gpus[g].memory_transfers_per_clock =  2u; break;
+			case AMDSMI_VRAM_TYPE_DDR4  : gpus[g].memory_transfers_per_clock =  2u; break;
+			case AMDSMI_VRAM_TYPE_DDR5  : gpus[g].memory_transfers_per_clock =  2u; break;
+			case AMDSMI_VRAM_TYPE_GDDR1 : gpus[g].memory_transfers_per_clock =  2u; break;
+			case AMDSMI_VRAM_TYPE_GDDR2 : gpus[g].memory_transfers_per_clock =  2u; break;
+			case AMDSMI_VRAM_TYPE_GDDR3 : gpus[g].memory_transfers_per_clock =  2u; break;
+			case AMDSMI_VRAM_TYPE_GDDR4 : gpus[g].memory_transfers_per_clock =  2u; break;
+			case AMDSMI_VRAM_TYPE_GDDR5 : gpus[g].memory_transfers_per_clock =  4u; break;
+			case AMDSMI_VRAM_TYPE_GDDR6 : gpus[g].memory_transfers_per_clock =  8u; break;
+			case AMDSMI_VRAM_TYPE_GDDR7 : gpus[g].memory_transfers_per_clock = 16u; break;
+			case AMDSMI_VRAM_TYPE_LPDDR4: gpus[g].memory_transfers_per_clock =  2u; break;
+			case AMDSMI_VRAM_TYPE_LPDDR5: gpus[g].memory_transfers_per_clock =  2u; break;
+			default: gpus[g].memory_transfers_per_clock = 8u;
+		}
+		gpus[g].memory_bandwidth_max = gpus[g].clock_memory_max*gpus[g].memory_transfers_per_clock*gpus[g].memory_bus_width/8u; // amdsmi_vram_info.vram_max_bandwidth is broken
+		gpus[g].pcie_bandwidth_max = 0u; // no data available
 	}
 }
 void gpu_update_amd() {
 	for(uint i=0u; i<(uint)amdsmi_devices.size(); i++) {
 		const uint g = amdsmi_gpu_start+i;
 		const amdsmi_processor_handle& amdsmi_device = amdsmi_devices[i];
-		processor_type_t amdsmi_processor_type;
-		amdsmi_get_processor_type(amdsmi_device, &amdsmi_processor_type);
-		if(amdsmi_processor_type!=AMDSMI_PROCESSOR_TYPE_AMD_GPU) continue;
 		amdsmi_engine_usage_t amdsmi_engine_usage = {};
 		amdsmi_vram_usage_t amdsmi_vram_usage = {};
 		int64_t gpu_temperature_current=0ull, gpu_fan_current=0ull;
@@ -1021,6 +1041,24 @@ void gpu_initialize_intel() {
 			}
 			if(zes_device_properties.core.flags&ZE_DEVICE_PROPERTY_FLAG_INTEGRATED) memory_bus_width_fallback = 128u; // dual-channel (128-bit) memory for iGPUs
 			gpus[g].memory_bus_width = zes_mem_properties.busWidth>0 ? (uint)(zes_mem_properties.busWidth>256 ? zes_mem_properties.busWidth/2 : zes_mem_properties.busWidth) : memory_bus_width_fallback; // zes_mem_properties.busWidth may wrongly report 2x bus width
+			switch(zes_mem_properties.type) { // memory type: 2 ((LP)DDR1-5, GDDR1-4, HBM1-4), 4 (GDDR5), 8 (GDDR5X, GDDR6), 16 (GDDR6X, GDDR6W, GDDR7)
+				case ZES_MEM_TYPE_HBM	: gpus[g].memory_transfers_per_clock =  2u; break;
+				case ZES_MEM_TYPE_DDR	: gpus[g].memory_transfers_per_clock =  2u; break;
+				case ZES_MEM_TYPE_DDR3	: gpus[g].memory_transfers_per_clock =  2u; break;
+				case ZES_MEM_TYPE_DDR4	: gpus[g].memory_transfers_per_clock =  2u; break;
+				case ZES_MEM_TYPE_DDR5	: gpus[g].memory_transfers_per_clock =  2u; break;
+				case ZES_MEM_TYPE_LPDDR : gpus[g].memory_transfers_per_clock =  2u; break;
+				case ZES_MEM_TYPE_LPDDR3: gpus[g].memory_transfers_per_clock =  2u; break;
+				case ZES_MEM_TYPE_LPDDR4: gpus[g].memory_transfers_per_clock =  2u; break;
+				case ZES_MEM_TYPE_LPDDR5: gpus[g].memory_transfers_per_clock =  2u; break;
+				case ZES_MEM_TYPE_GDDR4 : gpus[g].memory_transfers_per_clock =  2u; break;
+				case ZES_MEM_TYPE_GDDR5 : gpus[g].memory_transfers_per_clock =  4u; break;
+				case ZES_MEM_TYPE_GDDR5X: gpus[g].memory_transfers_per_clock =  8u; break;
+				case ZES_MEM_TYPE_GDDR6 : gpus[g].memory_transfers_per_clock =  8u; break;
+				case ZES_MEM_TYPE_GDDR6X: gpus[g].memory_transfers_per_clock = 16u; break;
+				case ZES_MEM_TYPE_GDDR7 : gpus[g].memory_transfers_per_clock = 16u; break;
+				default: gpus[g].memory_transfers_per_clock = (zes_device_properties.core.flags&ZE_DEVICE_PROPERTY_FLAG_INTEGRATED) ? 2u : 8u;
+			}
 		}
 		delete[] zes_mem_handles;
 		uint zes_freq_count = 0u;
@@ -1043,7 +1081,7 @@ void gpu_initialize_intel() {
 		}
 		delete[] zes_freq_handles;
 		if(gpus[g].clock_core_max==0u) gpus[g].clock_core_max = zes_device_properties.core.coreClockRate; // harden against broken counters
-		if(gpus[g].clock_memory_max==0u) gpus[g].clock_memory_max = gpus[g].memory_bus_width>0u ? gpus[g].memory_bandwidth_max/gpus[g].memory_bus_width : 0u; // harden against broken counters
+		if(gpus[g].clock_memory_max==0u) gpus[g].clock_memory_max = gpus[g].memory_bus_width>0u ? gpus[g].memory_bandwidth_max*8u/(gpus[g].memory_transfers_per_clock*gpus[g].memory_bus_width) : 0u; // harden against broken counters
 		zes_pci_stats_t zes_pci_stats = {};
 		zes_pci_state_t zes_pci_state = {};
 		zes_pci_properties_t zes_pci_properties = {};
@@ -1205,7 +1243,7 @@ void gpu_update_intel() {
 			if(zes_freq_properties.type==ZES_FREQ_DOMAIN_MEMORY) {
 				zes_freq_state_t zes_freq_state = {};
 				zesFrequencyGetState(zes_freq_handles[j], &zes_freq_state);
-				gpus[g].clock_memory_current = zes_freq_state.actual>0.0 ? to_uint(zes_freq_state.actual<4000.0 ? zes_freq_state.actual : zes_freq_state.actual/8.0) : 0.0; // zes_freq_state.actual may wrongly return value in MBit/s instead of MHz, so divide by 8
+				gpus[g].clock_memory_current = zes_freq_state.actual>0.0 ? to_uint(zes_freq_state.actual<4000.0 ? zes_freq_state.actual : zes_freq_state.actual/(double)gpus[g].memory_transfers_per_clock) : 0.0; // zes_freq_state.actual may wrongly return value in MT/s instead of MHz, so divide by memory_transfers_per_clock
 				zes_freq_domain_memory_found = true;
 			}
 		}
@@ -1566,7 +1604,7 @@ int main(int argc, char* argv[]) {
 	sigaction(SIGINT, &act, NULL);
 #endif // Linux
 	const vector<string> main_arguments = get_main_arguments(argc, argv);
-	bool graphs = true;
+	bool graphs = false;
 	if(main_arguments.size()>0) {
 		if(contains(main_arguments[0], "-g")) {
 			graphs = true;
